@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examly — Online Examination Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --border-hover: #333333;
+    --text: #f0f0f0;
+    --muted: #666666;
+    --accent: #e8ff47;
+    --accent-dim: rgba(232,255,71,0.08);
+    --accent-border: rgba(232,255,71,0.2);
+    --red: #ff4444;
+    --green: #44ff88;
+    --radius: 12px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
+  }
+
+  /* brand */
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .brand-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .brand-name {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .brand-name span { color: var(--accent); }
+
+  /* card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    animation: fadeUp 0.4s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-title {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+  .card-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  /* tabs */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+    gap: 2px;
+  }
+  .tab {
+    padding: 9px;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+
+  /* role selector */
+  .role-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .roles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .role-btn {
+    padding: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .role-btn:hover { border-color: var(--border-hover); color: var(--text); }
+  .role-btn.selected {
+    border-color: var(--accent-border);
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+  .role-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* form */
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    padding: 11px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--border-hover); }
+  .field input::placeholder { color: #444; }
+
+  /* submit */
+  .submit-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+    letter-spacing: -0.01em;
+  }
+  .submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* error / success */
+  .msg {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .msg.error { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.2); color: #ff8888; }
+  .msg.success { background: rgba(68,255,136,0.1); border: 1px solid rgba(68,255,136,0.2); color: #44ff88; }
+  .msg.show { display: block; }
+
+  /* divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* footer */
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .footer a { color: var(--accent); text-decoration: none; cursor: pointer; }
+
+  /* loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #0a0a0a;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* users stored info tag */
+  .users-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-icon">✦</div>
+    <div class="brand-name">Exam<span>ly</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="cardTitle">Welcome back</div>
+    <div class="card-sub" id="cardSub">Sign in to your account to continue</div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Sign in</button>
+      <button class="tab" onclick="switchTab('signup')">Create account</button>
+    </div>
+
+    <div class="msg error" id="errorMsg"></div>
+    <div class="msg success" id="successMsg"></div>
+
+    <!-- Role selector -->
+    <div class="role-label">I am a</div>
+    <div class="roles">
+      <button class="role-btn selected" onclick="selectRole('student')" id="role-student">
+        <span class="role-dot"></span> Student
+      </button>
+      <button class="role-btn" onclick="selectRole('teacher')" id="role-teacher">
+        <span class="role-dot"></span> Teacher
+      </button>
+    </div>
+
+    <!-- Login form -->
+    <div id="loginForm">
+      <div class="field">
+        <label>Email or ID</label>
+        <input type="text" id="loginId" placeholder="student@university.edu" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <button class="submit-btn" id="loginBtn" onclick="doLogin()">Sign in →</button>
+    </div>
+
+    <!-- Signup form -->
+    <div id="signupForm" style="display:none">
+      <div class="field">
+        <label>Full name</label>
+        <input type="text" id="signupName" placeholder="Your name" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signupEmail" placeholder="you@university.edu" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signupPass" placeholder="Min. 6 characters" autocomplete="new-password" />
+      </div>
+      <div class="field" id="teacherCodeField" style="display:none">
+        <label>Teacher access code</label>
+        <input type="text" id="teacherCode" placeholder="Provided by admin" />
+      </div>
+      <button class="submit-btn" id="signupBtn" onclick="doSignup()">Create account →</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    Examly — Serverless Examination Platform
+  </div>
+</div>
+
+<script>
+  const TEACHER_CODE = 'TEACH2024';
+  let currentTab = 'login';
+  let currentRole = 'student';
+
+  // Simple local user store (replace with Azure AD in production)
+  function getUsers() {
+    return JSON.parse(localStorage.getItem('examly_users') || '[]');
+  }
+  function saveUsers(users) {
+    localStorage.setItem('examly_users', JSON.stringify(users));
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'signup'));
+    });
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+    document.getElementById('cardTitle').textContent = tab === 'login' ? 'Welcome back' : 'Create account';
+    document.getElementById('cardSub').textContent = tab === 'login'
+      ? 'Sign in to your account to continue'
+      : 'Join Examly to get started';
+    clearMsgs();
+  }
+
+  function selectRole(role) {
+    currentRole = role;
+    document.getElementById('role-student').classList.toggle('selected', role === 'student');
+    document.getElementById('role-teacher').classList.toggle('selected', role === 'teacher');
+    document.getElementById('teacherCodeField').style.display =
+      (role === 'teacher' && currentTab === 'signup') ? 'block' : 'none';
+    clearMsgs();
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.add('show');
+    document.getElementById('successMsg').classList.remove('show');
+  }
+  function showSuccess(msg) {
+    const el = document.getElementById('successMsg');
+    el.textContent = msg;
+    el.classList.add('show');
+    document.getElementById('errorMsg').classList.remove('show');
+  }
+  function clearMsgs() {
+    document.getElementById('errorMsg').classList.remove('show');
+    document.getElementById('successMsg').classList.remove('show');
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? '<span class="spinner"></span>Please wait...'
+      : (btnId === 'loginBtn' ? 'Sign in →' : 'Create account →');
+  }
+
+  function doLogin() {
+    clearMsgs();
+    const idVal = document.getElementById('loginId').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    if (!idVal || !pass) { showError('Please fill in all fields'); return; }
+
+    setLoading('loginBtn', true);
+    setTimeout(() => {
+      const users = getUsers();
+      const user = users.find(u =>
+        (u.email === idVal || u.id === idVal) &&
+        u.password === pass &&
+        u.role === currentRole
+      );
+      setLoading('loginBtn', false);
+      if (!user) {
+        showError('Invalid credentials or wrong role selected');
+        return;
+      }
+      // Save session
+      sessionStorage.setItem('examly_user', JSON.stringify(user));
+      showSuccess('Signed in! Redirecting...');
+      setTimeout(() => {
+        window.location.href = user.role === 'teacher' ? 'teacher.html' : 'student.html';
+      }, 600);
+    }, 800);
+  }
+
+  function doSignup() {
+    clearMsgs();
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const pass = document.getElementById('signupPass').value;
+
+    if (!name || !email || !pass) { showError('Please fill in all fields'); return; }
+    if (pass.length < 6) { showError('Password must be at least 6 characters'); return; }
+    if (currentRole === 'teacher') {
+      const code = document.getElementById('teacherCode').value.trim();
+      if (code !== TEACHER_CODE) { showError('Invalid teacher access code'); return; }
+    }
+
+    const users = getUsers();
+    if (users.find(u => u.email === email)) {
+      showError('An account with this email already exists');
+      return;
+    }
+
+    setLoading('signupBtn', true);
+    setTimeout(() => {
+      const user = {
+        id: 'usr_' + Date.now(),
+        name, email, password: pass,
+        role: currentRole,
+        createdAt: new Date().toISOString()
+      };
+      users.push(user);
+      saveUsers(users);
+      setLoading('signupBtn', false);
+      showSuccess('Account created! You can now sign in.');
+      setTimeout(() => switchTab('login'), 1200);
+    }, 800);
+  }
+
+  // Handle teacher code field visibility on tab switch
+  document.getElementById('signupForm');
+  const origSelectRole = selectRole;
+</script>
+</body>
+</html>

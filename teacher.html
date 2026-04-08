@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Examly — Teacher Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0a;
+        --surface: #111111;
+        --surface2: #1a1a1a;
+        --surface3: #222222;
+        --border: #222222;
+        --border-hover: #333333;
+        --text: #f0f0f0;
+        --muted: #666666;
+        --muted2: #444444;
+        --accent: #e8ff47;
+        --accent-dim: rgba(232, 255, 71, 0.06);
+        --accent-border: rgba(232, 255, 71, 0.15);
+        --red: #ff4444;
+        --green: #44ff88;
+        --radius: 10px;
+        --font: "DM Sans", sans-serif;
+        --mono: "DM Mono", monospace;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* nav */
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 32px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .nav-brand-icon {
+        width: 28px;
+        height: 28px;
+        background: var(--accent);
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: #0a0a0a;
+      }
+      .nav-brand span {
+        color: var(--accent);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .nav-avatar {
+        width: 30px;
+        height: 30px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .role-badge {
+        font-family: var(--mono);
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 100px;
+        background: var(--accent-dim);
+        border: 1px solid var(--accent-border);
+        color: var(--accent);
+      }
+      .btn-ghost {
+        padding: 7px 14px;
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--muted);
+        font-family: var(--font);
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-ghost:hover {
+        border-color: var(--border-hover);
+        color: var(--text);
+      }
+
+      /* layout */
+      .layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        flex: 1;
+        min-height: 0;
+      }
+
+      /* sidebar */
+      aside {
+        border-right: 1px solid var(--border);
+        padding: 24px 16px;
+        background: var(--surface);
+      }
+      .sidebar-section {
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--muted2);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0 12px;
+        margin-bottom: 6px;
+        margin-top: 20px;
+      }
+      .sidebar-section:first-child {
+        margin-top: 0;
+      }
+      .sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        border: 1px solid transparent;
+      }
+      .sidebar-item:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+      .sidebar-item.active {
+        background: var(--accent-dim);
+        border-color: var(--accent-border);
+        color: var(--accent);
+      }
+      .sidebar-icon {
+        font-size: 14px;
+        width: 18px;
+        text-align: center;
+      }
+
+      /* main */
+      main {
+        padding: 32px;
+        overflow-y: auto;
+      }
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+        animation: fadeIn 0.25s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .page-header {
+        margin-bottom: 28px;
+      }
+      .page-title {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+      .page-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* stats row */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+      }
+      .stat-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .stat-value {
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.04em;
+        margin-top: 6px;
+      }
+      .stat-accent {
+        color: var(--accent);
+      }
+
+      /* section card */
+      .section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 20px;
+      }
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+      }
+      .section-title {
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .section-body {
+        padding: 24px;
+      }
+
+      /* form */
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .field.full {
+        grid-column: 1 / -1;
+      }
+      .field label {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .field input,
+      .field select {
+        padding: 10px 14px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .field input:focus,
+      .field select:focus {
+        border-color: var(--border-hover);
+      }
+      .field input::placeholder {
+        color: var(--muted2);
+      }
+      select option {
+        background: var(--surface2);
+      }
+
+      /* buttons */
+      .btn {
+        padding: 9px 18px;
+        border-radius: var(--radius);
+        border: none;
+        font-family: var(--font);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn:hover {
+        opacity: 0.85;
+      }
+      .btn-accent {
+        background: var(--accent);
+        color: #0a0a0a;
+      }
+      .btn-outline {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+      .btn-outline:hover {
+        border-color: var(--border-hover);
+        color: var(--text);
+        opacity: 1;
+      }
+      .btn-danger {
+        background: rgba(255, 68, 68, 0.1);
+        border: 1px solid rgba(255, 68, 68, 0.2);
+        color: var(--red);
+      }
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      /* question card */
+      .question-item {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 18px;
+        margin-bottom: 10px;
+      }
+      .question-item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .q-num {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .options-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .option-input {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 12px;
+      }
+      .option-label {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        flex-shrink: 0;
+        width: 16px;
+      }
+      .option-input input {
+        flex: 1;
+        background: none;
+        border: none;
+        outline: none;
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 13px;
+        padding: 0;
+      }
+      .option-input input::placeholder {
+        color: var(--muted2);
+      }
+
+      /* exam list */
+      .exam-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .exam-row:last-child {
+        border-bottom: none;
+      }
+      .exam-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .exam-name {
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .exam-meta {
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        gap: 12px;
+      }
+      .exam-id {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--accent);
+        background: var(--accent-dim);
+        border: 1px solid var(--accent-border);
+        border-radius: 6px;
+        padding: 3px 8px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+      .exam-id:hover {
+        opacity: 0.7;
+      }
+
+      /* status badge */
+      .badge {
+        font-size: 11px;
+        padding: 3px 9px;
+        border-radius: 100px;
+        font-weight: 500;
+      }
+      .badge-active {
+        background: rgba(68, 255, 136, 0.1);
+        border: 1px solid rgba(68, 255, 136, 0.2);
+        color: var(--green);
+      }
+
+      /* toast */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 18px;
+        font-size: 13px;
+        color: var(--text);
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 0.25s;
+        z-index: 999;
+        max-width: 320px;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .toast.accent {
+        border-color: var(--accent-border);
+        color: var(--accent);
+      }
+
+      /* empty state */
+      .empty {
+        text-align: center;
+        padding: 48px 24px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .empty-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
+
+      /* results table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th {
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 13px 14px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: var(--surface2);
+      }
+      .pct {
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .pass {
+        color: var(--green);
+      }
+      .fail {
+        color: var(--red);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-brand">
+        <div class="nav-brand-icon">✦</div>
+        Exam<span>ly</span>
+      </div>
+      <div class="nav-right">
+        <span class="role-badge">Teacher</span>
+        <div class="nav-user">
+          <div class="nav-avatar" id="avatarInitials">T</div>
+          <span id="navName">Teacher</span>
+        </div>
+        <button class="btn-ghost" onclick="logout()">Sign out</button>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <aside>
+        <div class="sidebar-section">Overview</div>
+        <div class="sidebar-item active" onclick="showPage('dashboard', this)">
+          <span class="sidebar-icon">◈</span> Dashboard
+        </div>
+        <div class="sidebar-section">Exams</div>
+        <div class="sidebar-item" onclick="showPage('create', this)">
+          <span class="sidebar-icon">＋</span> Create exam
+        </div>
+        <div class="sidebar-item" onclick="showPage('myexams', this)">
+          <span class="sidebar-icon">≡</span> My exams
+        </div>
+        <div class="sidebar-section">Results</div>
+        <div class="sidebar-item" onclick="showPage('results', this)">
+          <span class="sidebar-icon">◎</span> View results
+        </div>
+      </aside>
+
+      <main>
+        <!-- Dashboard -->
+        <div class="page active" id="page-dashboard">
+          <div class="page-header">
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">
+              Overview of your exams and student activity
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-label">Total exams</div>
+              <div class="stat-value stat-accent" id="statExams">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Submissions</div>
+              <div class="stat-value" id="statSubs">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Pass rate</div>
+              <div class="stat-value" id="statPass">—</div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title">Recent exams</span>
+              <button
+                class="btn btn-outline btn-sm"
+                onclick="
+                  showPage(
+                    'create',
+                    document.querySelector('[onclick*=create]'),
+                  )
+                "
+              >
+                + New
+              </button>
+            </div>
+            <div class="section-body" id="dashExamList">
+              <div class="empty">
+                <div class="empty-icon">📋</div>
+                No exams yet. Create your first one.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create exam -->
+        <div class="page" id="page-create">
+          <div class="page-header">
+            <div class="page-title">Create exam</div>
+            <div class="page-sub">
+              Set up a new examination for your students
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title">Exam details</span>
+            </div>
+            <div class="section-body">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Exam title</label>
+                  <input
+                    type="text"
+                    id="examTitle"
+                    placeholder="e.g. Mid-term Mathematics"
+                  />
+                </div>
+                <div class="field">
+                  <label>Subject</label>
+                  <input
+                    type="text"
+                    id="examSubject"
+                    placeholder="e.g. Mathematics"
+                  />
+                </div>
+                <div class="field">
+                  <label>Duration (minutes)</label>
+                  <input
+                    type="number"
+                    id="examDuration"
+                    placeholder="60"
+                    min="5"
+                    max="300"
+                  />
+                </div>
+                <div class="field">
+                  <label>Pass percentage</label>
+                  <input
+                    type="number"
+                    id="examPass"
+                    placeholder="50"
+                    min="1"
+                    max="100"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title"
+                >Questions
+                <span id="qCount" style="color: var(--muted); font-weight: 400"
+                  >(0)</span
+                ></span
+              >
+              <button class="btn btn-outline btn-sm" onclick="addQuestion()">
+                + Add question
+              </button>
+            </div>
+            <div class="section-body" id="questionsContainer">
+              <div class="empty" id="noQuestions">
+                <div class="empty-icon">❓</div>
+                Add at least one question to continue.
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end">
+            <button class="btn btn-outline" onclick="resetForm()">Clear</button>
+            <button class="btn btn-accent" onclick="publishExam()">
+              Publish exam →
+            </button>
+          </div>
+        </div>
+
+        <!-- My exams -->
+        <div class="page" id="page-myexams">
+          <div class="page-header">
+            <div class="page-title">My exams</div>
+            <div class="page-sub">All exams you've created</div>
+          </div>
+          <div class="section">
+            <div class="section-body" id="myExamsList">
+              <div class="empty">
+                <div class="empty-icon">📋</div>
+                No exams created yet.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="page" id="page-results">
+          <div class="page-header">
+            <div class="page-title">Student results</div>
+            <div class="page-sub">All submissions across your exams</div>
+          </div>
+          <div class="section">
+            <div class="section-body" style="padding: 0">
+              <table id="resultsTable">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Exam</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsBody">
+                  <tr>
+                    <td
+                      colspan="6"
+                      style="
+                        text-align: center;
+                        color: var(--muted);
+                        padding: 40px;
+                      "
+                    >
+                      No results yet
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const API =
+        "https://examsystem-functions-ceh9frbfbwg3bffc.centralindia-01.azurewebsites.net/api";
+      let questions = [];
+      let currentUser = null;
+
+      // Auth guard
+      const sess = sessionStorage.getItem("examly_user");
+      if (!sess) {
+        window.location.href = "index.html";
+      } else {
+        currentUser = JSON.parse(sess);
+        if (currentUser.role !== "teacher")
+          window.location.href = "student.html";
+        document.getElementById("navName").textContent = currentUser.name;
+        document.getElementById("avatarInitials").textContent = currentUser.name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+      }
+
+      function logout() {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+      }
+
+      function showPage(id, el) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".sidebar-item")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById("page-" + id).classList.add("active");
+        if (el) el.classList.add("active");
+        if (id === "myexams") renderMyExams();
+        if (id === "results") renderResults();
+        if (id === "dashboard") updateDashboard();
+      }
+
+      function toast(msg, accent) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.className = "toast show" + (accent ? " accent" : "");
+        setTimeout(() => t.classList.remove("show"), 3000);
+      }
+
+      // Questions
+      function addQuestion() {
+        document.getElementById("noQuestions").style.display = "none";
+        const idx = questions.length;
+        questions.push({
+          id: "q" + Date.now(),
+          text: "",
+          options: ["", "", "", ""],
+          correctAnswer: "",
+        });
+        renderQuestion(idx);
+        updateQCount();
+      }
+
+      function renderQuestion(idx) {
+        const q = questions[idx];
+        const container = document.getElementById("questionsContainer");
+        const labels = ["A", "B", "C", "D"];
+        const div = document.createElement("div");
+        div.className = "question-item";
+        div.id = "qitem-" + q.id;
+        div.innerHTML = `
+      <div class="question-item-header">
+        <span class="q-num">Q${idx + 1}</span>
+        <button class="btn btn-danger btn-sm" onclick="removeQuestion('${q.id}')">Remove</button>
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label>Question</label>
+        <input type="text" placeholder="Enter question text" value="${q.text}"
+          oninput="questions[${idx}].text = this.value" />
+      </div>
+      <div class="options-grid">
+        ${labels
+          .map(
+            (l, i) => `
+          <div class="option-input">
+            <span class="option-label">${l}</span>
+            <input type="text" placeholder="Option ${l}" value="${q.options[i]}"
+              oninput="questions[${idx}].options[${i}] = this.value; refreshCorrectSelect('${q.id}', ${idx})" />
+          </div>`,
+          )
+          .join("")}
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>Correct answer</label>
+        <select id="correct-${q.id}" onchange="questions[${idx}].correctAnswer = this.value">
+          <option value="">Select correct option</option>
+          ${labels.map((l, i) => `<option value="${q.options[i]}">Option ${l}</option>`).join("")}
+        </select>
+      </div>`;
+        container.appendChild(div);
+      }
+
+      function refreshCorrectSelect(qId, idx) {
+        const labels = ["A", "B", "C", "D"];
+        const sel = document.getElementById("correct-" + qId);
+        const prev = sel.value;
+        sel.innerHTML =
+          '<option value="">Select correct option</option>' +
+          labels
+            .map(
+              (l, i) =>
+                `<option value="${questions[idx].options[i]}" ${prev === questions[idx].options[i] ? "selected" : ""}>Option ${l}</option>`,
+            )
+            .join("");
+      }
+
+      function removeQuestion(qId) {
+        questions = questions.filter((q) => q.id !== qId);
+        document.getElementById("qitem-" + qId).remove();
+        if (questions.length === 0)
+          document.getElementById("noQuestions").style.display = "block";
+        updateQCount();
+        // Re-number labels
+        document
+          .querySelectorAll(".q-num")
+          .forEach((el, i) => (el.textContent = "Q" + (i + 1)));
+      }
+
+      function updateQCount() {
+        document.getElementById("qCount").textContent =
+          "(" + questions.length + ")";
+      }
+
+      function resetForm() {
+        questions = [];
+        document.getElementById("questionsContainer").innerHTML =
+          '<div class="empty" id="noQuestions"><div class="empty-icon">❓</div>Add at least one question to continue.</div>';
+        document.getElementById("examTitle").value = "";
+        document.getElementById("examSubject").value = "";
+        document.getElementById("examDuration").value = "";
+        document.getElementById("examPass").value = "";
+        updateQCount();
+      }
+
+      async function publishExam() {
+        const title = document.getElementById("examTitle").value.trim();
+        const subject = document.getElementById("examSubject").value.trim();
+        const duration =
+          parseInt(document.getElementById("examDuration").value) || 60;
+        const passPercent =
+          parseInt(document.getElementById("examPass").value) || 50;
+
+        if (!title || !subject) {
+          toast("Please fill exam title and subject");
+          return;
+        }
+        if (questions.length === 0) {
+          toast("Add at least one question");
+          return;
+        }
+        for (let q of questions) {
+          if (!q.text || q.options.some((o) => !o) || !q.correctAnswer) {
+            toast("Fill all question fields and select correct answers");
+            return;
+          }
+        }
+
+        try {
+          const res = await fetch(`${API}/createExam`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title,
+              subject,
+              duration,
+              passPercent,
+              questions,
+              teacherId: currentUser.id,
+            }),
+          });
+          const data = await res.json();
+
+          // Also save locally for offline viewing
+          const exams = JSON.parse(
+            localStorage.getItem("examly_exams") || "[]",
+          );
+          exams.push({
+            id: data.examId,
+            title,
+            subject,
+            duration,
+            passPercent,
+            questions,
+            teacherId: currentUser.id,
+            createdAt: new Date().toISOString(),
+          });
+          localStorage.setItem("examly_exams", JSON.stringify(exams));
+
+          toast("✦ Exam published! ID: " + data.examId, true);
+          resetForm();
+          setTimeout(
+            () =>
+              showPage("myexams", document.querySelector("[onclick*=myexams]")),
+            1200,
+          );
+        } catch (err) {
+          // Fallback: save locally if API unavailable
+          const examId = "exam_" + Date.now();
+          const exams = JSON.parse(
+            localStorage.getItem("examly_exams") || "[]",
+          );
+          exams.push({
+            id: examId,
+            title,
+            subject,
+            duration,
+            passPercent,
+            questions,
+            teacherId: currentUser.id,
+            createdAt: new Date().toISOString(),
+          });
+          localStorage.setItem("examly_exams", JSON.stringify(exams));
+          toast("✦ Exam saved! ID: " + examId, true);
+          resetForm();
+          setTimeout(
+            () =>
+              showPage("myexams", document.querySelector("[onclick*=myexams]")),
+            1200,
+          );
+        }
+      }
+
+      function renderMyExams() {
+        const exams = JSON.parse(
+          localStorage.getItem("examly_exams") || "[]",
+        ).filter((e) => e.teacherId === currentUser.id);
+        const el = document.getElementById("myExamsList");
+        if (!exams.length) {
+          el.innerHTML =
+            '<div class="empty"><div class="empty-icon">📋</div>No exams created yet.</div>';
+          return;
+        }
+        el.innerHTML = exams
+          .reverse()
+          .map(
+            (e) => `
+      <div class="exam-row">
+        <div class="exam-info">
+          <span class="exam-name">${e.title}</span>
+          <span class="exam-meta">
+            <span>${e.subject}</span>
+            <span>${e.questions.length} questions</span>
+            <span>${e.duration} min</span>
+          </span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge badge-active">Active</span>
+          <span class="exam-id" onclick="copyId('${e.id}')" title="Click to copy">${e.id}</span>
+        </div>
+      </div>`,
+          )
+          .join("");
+      }
+
+      function copyId(id) {
+        navigator.clipboard
+          .writeText(id)
+          .then(() => toast("Exam ID copied!", true));
+      }
+
+      function renderResults() {
+        const results = JSON.parse(
+          localStorage.getItem("examly_results") || "[]",
+        );
+        const exams = JSON.parse(localStorage.getItem("examly_exams") || "[]")
+          .filter((e) => e.teacherId === currentUser.id)
+          .map((e) => e.id);
+        const myResults = results.filter((r) => exams.includes(r.examId));
+        const tbody = document.getElementById("resultsBody");
+        if (!myResults.length) {
+          tbody.innerHTML =
+            '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px">No results yet</td></tr>';
+          return;
+        }
+        tbody.innerHTML = myResults
+          .reverse()
+          .map(
+            (r) => `
+      <tr>
+        <td>${r.studentName}</td>
+        <td>${r.examTitle}</td>
+        <td class="pct">${r.score}/${r.total}</td>
+        <td class="pct">${r.percentage}%</td>
+        <td><span class="${r.passed ? "pass" : "fail"}">${r.passed ? "Passed" : "Failed"}</span></td>
+        <td style="color:var(--muted);font-size:12px">${new Date(r.submittedAt).toLocaleString()}</td>
+      </tr>`,
+          )
+          .join("");
+      }
+
+      function updateDashboard() {
+        const exams = JSON.parse(
+          localStorage.getItem("examly_exams") || "[]",
+        ).filter((e) => e.teacherId === currentUser.id);
+        const results = JSON.parse(
+          localStorage.getItem("examly_results") || "[]",
+        ).filter((r) => exams.map((e) => e.id).includes(r.examId));
+        document.getElementById("statExams").textContent = exams.length;
+        document.getElementById("statSubs").textContent = results.length;
+        const passed = results.filter((r) => r.passed).length;
+        document.getElementById("statPass").textContent = results.length
+          ? Math.round((passed / results.length) * 100) + "%"
+          : "—";
+
+        const el = document.getElementById("dashExamList");
+        if (!exams.length) {
+          el.innerHTML =
+            '<div class="empty"><div class="empty-icon">📋</div>No exams yet. Create your first one.</div>';
+          return;
+        }
+        el.innerHTML = exams
+          .slice(-3)
+          .reverse()
+          .map(
+            (e) => `
+      <div class="exam-row">
+        <div class="exam-info">
+          <span class="exam-name">${e.title}</span>
+          <span class="exam-meta"><span>${e.subject}</span><span>${e.questions.length} questions</span></span>
+        </div>
+        <span class="exam-id" onclick="copyId('${e.id}')" title="Copy ID">${e.id}</span>
+      </div>`,
+          )
+          .join("");
+      }
+
+      updateDashboard();
+    </script>
+  </body>
+</html>
