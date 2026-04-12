@@ -1,1081 +1,458 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Examly — Student Portal</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg: #0a0a0a;
-        --surface: #111111;
-        --surface2: #1a1a1a;
-        --surface3: #222222;
-        --border: #222222;
-        --border-hover: #333333;
-        --text: #f0f0f0;
-        --muted: #666666;
-        --muted2: #444444;
-        --accent: #e8ff47;
-        --accent-dim: rgba(232, 255, 71, 0.06);
-        --accent-border: rgba(232, 255, 71, 0.15);
-        --red: #ff4444;
-        --green: #44ff88;
-        --radius: 10px;
-        --font: "DM Sans", sans-serif;
-        --mono: "DM Mono", monospace;
-      }
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: var(--font);
-        background: var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examly — Student Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a; --surface: #111111; --surface2: #1a1a1a; --surface3: #222222;
+    --border: #222222; --border-hover: #333333; --text: #f0f0f0; --muted: #666666;
+    --muted2: #444444; --accent: #e8ff47; --accent-dim: rgba(232,255,71,0.06);
+    --accent-border: rgba(232,255,71,0.15); --red: #ff4444; --green: #44ff88;
+    --radius: 10px; --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .nav-brand-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #0a0a0a; }
+  .nav-brand span { color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .nav-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .nav-avatar { width: 30px; height: 30px; background: var(--surface2); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--accent); }
+  .role-badge { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 100px; background: rgba(68,255,136,0.08); border: 1px solid rgba(68,255,136,0.15); color: var(--green); }
+  .btn-ghost { padding: 7px 14px; background: none; border: 1px solid var(--border); border-radius: var(--radius); color: var(--muted); font-family: var(--font); font-size: 13px; cursor: pointer; transition: all 0.2s; }
+  .btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+  .layout { display: grid; grid-template-columns: 220px 1fr; flex: 1; min-height: 0; }
+  aside { border-right: 1px solid var(--border); padding: 24px 16px; background: var(--surface); }
+  .sidebar-section { font-size: 10px; font-weight: 500; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 12px; margin-bottom: 6px; margin-top: 20px; }
+  .sidebar-section:first-child { margin-top: 0; }
+  .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: var(--accent-dim); border-color: var(--accent-border); color: var(--accent); }
+  .sidebar-icon { font-size: 14px; width: 18px; text-align: center; }
+  main { padding: 32px; overflow-y: auto; }
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; }
+  .section-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .section-title { font-size: 14px; font-weight: 500; }
+  .section-body { padding: 24px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .field label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .field input { padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.2s; max-width: 360px; }
+  .field input:focus { border-color: var(--border-hover); }
+  .field input::placeholder { color: var(--muted2); }
+  .btn { padding: 9px 18px; border-radius: var(--radius); border: none; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { opacity: 0.85; }
+  .btn-accent { background: var(--accent); color: #0a0a0a; }
+  .btn-outline { background: none; border: 1px solid var(--border); color: var(--muted); }
+  .btn-outline:hover { border-color: var(--border-hover); color: var(--text); opacity: 1; }
+  .exam-header { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; position: sticky; top: 73px; z-index: 10; }
+  .exam-meta-info { display: flex; flex-direction: column; gap: 3px; }
+  .exam-meta-title { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+  .exam-meta-sub { font-size: 12px; color: var(--muted); }
+  .timer-display { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--accent); background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: var(--radius); padding: 10px 20px; letter-spacing: 0.02em; transition: all 0.5s; }
+  .timer-display.warning { color: var(--red); background: rgba(255,68,68,0.08); border-color: rgba(255,68,68,0.2); }
+  .progress-bar-wrap { background: var(--surface2); border-radius: 100px; height: 3px; margin-bottom: 24px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--accent); border-radius: 100px; transition: width 0.3s; }
+  .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 12px; transition: border-color 0.2s; }
+  .question-card.answered { border-color: var(--accent-border); }
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .q-num-badge { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 6px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); flex-shrink: 0; }
+  .q-text { font-size: 15px; font-weight: 500; line-height: 1.5; }
+  .options { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .option-label { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all 0.15s; font-size: 14px; }
+  .option-label:hover { border-color: var(--border-hover); background: var(--surface3); }
+  .option-label input[type=radio] { display: none; }
+  .option-label.selected { border-color: var(--accent-border); background: var(--accent-dim); color: var(--accent); }
+  .option-key { font-family: var(--mono); font-size: 11px; width: 22px; height: 22px; border-radius: 6px; background: var(--surface3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; color: var(--muted); }
+  .option-label.selected .option-key { background: var(--accent); border-color: var(--accent); color: #0a0a0a; }
 
-      nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 32px;
-        border-bottom: 1px solid var(--border);
-        background: var(--surface);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
-      .nav-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-      }
-      .nav-brand-icon {
-        width: 28px;
-        height: 28px;
-        background: var(--accent);
-        border-radius: 7px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        color: #0a0a0a;
-      }
-      .nav-brand span {
-        color: var(--accent);
-      }
-      .nav-right {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-      .nav-user {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .nav-avatar {
-        width: 30px;
-        height: 30px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--accent);
-      }
-      .role-badge {
-        font-family: var(--mono);
-        font-size: 10px;
-        padding: 3px 8px;
-        border-radius: 100px;
-        background: rgba(68, 255, 136, 0.08);
-        border: 1px solid rgba(68, 255, 136, 0.15);
-        color: var(--green);
-      }
-      .btn-ghost {
-        padding: 7px 14px;
-        background: none;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        color: var(--muted);
-        font-family: var(--font);
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .btn-ghost:hover {
-        border-color: var(--border-hover);
-        color: var(--text);
-      }
+  /* results */
+  .result-hero { text-align: center; padding: 40px 24px 28px; }
+  .result-score-ring { width: 120px; height: 120px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; border: 3px solid var(--accent); }
+  .result-score-ring.fail { border-color: var(--red); }
+  .result-pct { font-size: 32px; font-weight: 600; letter-spacing: -0.04em; color: var(--accent); }
+  .result-pct.fail { color: var(--red); }
+  .result-status { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+  .result-label { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 6px; }
+  .result-detail { font-size: 13px; color: var(--muted); }
+  .answer-list { padding: 0 24px 24px; }
+  .answer-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .answer-item:last-child { border-bottom: none; }
+  .answer-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .dot-correct { background: var(--green); }
+  .dot-wrong { background: var(--red); }
+  .answer-content { flex: 1; }
+  .answer-q { font-weight: 500; margin-bottom: 4px; }
+  .answer-detail { color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; }
+  .answer-yours { font-family: var(--mono); font-size: 11px; }
+  .answer-correct-text { font-family: var(--mono); font-size: 11px; color: var(--green); }
+  .result-actions { display: flex; gap: 10px; justify-content: center; padding: 0 24px 28px; flex-wrap: wrap; }
 
-      .layout {
-        display: grid;
-        grid-template-columns: 220px 1fr;
-        flex: 1;
-        min-height: 0;
-      }
+  /* history */
+  .history-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; border-radius: 8px; }
+  .history-item:hover { background: var(--surface2); padding-left: 8px; padding-right: 8px; }
+  .history-item:last-child { border-bottom: none; }
+  .history-info { display: flex; flex-direction: column; gap: 3px; }
+  .history-name { font-size: 14px; font-weight: 500; }
+  .history-meta { font-size: 12px; color: var(--muted); }
+  .history-score { text-align: right; display: flex; flex-direction: column; gap: 2px; }
+  .history-pct { font-family: var(--mono); font-size: 16px; font-weight: 500; }
+  .pass-text { color: var(--green); }
+  .fail-text { color: var(--red); }
+  .empty { text-align: center; padding: 48px 24px; color: var(--muted); font-size: 13px; }
+  .empty-icon { font-size: 32px; margin-bottom: 12px; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 18px; font-size: 13px; color: var(--text); opacity: 0; transform: translateY(8px); transition: all 0.25s; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
 
-      aside {
-        border-right: 1px solid var(--border);
-        padding: 24px 16px;
-        background: var(--surface);
-      }
-      .sidebar-section {
-        font-size: 10px;
-        font-weight: 500;
-        color: var(--muted2);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        padding: 0 12px;
-        margin-bottom: 6px;
-        margin-top: 20px;
-      }
-      .sidebar-section:first-child {
-        margin-top: 0;
-      }
-      .sidebar-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 9px 12px;
-        border-radius: 8px;
-        font-size: 13px;
-        color: var(--muted);
-        cursor: pointer;
-        transition: all 0.15s;
-        border: 1px solid transparent;
-      }
-      .sidebar-item:hover {
-        background: var(--surface2);
-        color: var(--text);
-      }
-      .sidebar-item.active {
-        background: var(--accent-dim);
-        border-color: var(--accent-border);
-        color: var(--accent);
-      }
-      .sidebar-icon {
-        font-size: 14px;
-        width: 18px;
-        text-align: center;
-      }
+<nav>
+  <div class="nav-brand">
+    <div class="nav-brand-icon">✦</div>
+    Exam<span>ly</span>
+  </div>
+  <div class="nav-right">
+    <span class="role-badge">Student</span>
+    <div class="nav-user">
+      <div class="nav-avatar" id="avatarInitials">S</div>
+      <span id="navName">Student</span>
+    </div>
+    <button class="btn-ghost" onclick="logout()">Sign out</button>
+  </div>
+</nav>
 
-      main {
-        padding: 32px;
-        overflow-y: auto;
-      }
-      .page {
-        display: none;
-      }
-      .page.active {
-        display: block;
-        animation: fadeIn 0.25s ease;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
+<div class="layout">
+  <aside>
+    <div class="sidebar-section">Exams</div>
+    <div class="sidebar-item active" onclick="showPage('join', this)">
+      <span class="sidebar-icon">◈</span> Join exam
+    </div>
+    <div class="sidebar-section">History</div>
+    <div class="sidebar-item" onclick="showPage('history', this)">
+      <span class="sidebar-icon">◎</span> My results
+    </div>
+  </aside>
 
-      .page-header {
-        margin-bottom: 28px;
-      }
-      .page-title {
-        font-size: 22px;
-        font-weight: 600;
-        letter-spacing: -0.03em;
-      }
-      .page-sub {
-        font-size: 13px;
-        color: var(--muted);
-        margin-top: 4px;
-      }
-
-      .section {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        margin-bottom: 20px;
-      }
-      .section-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 20px 24px;
-        border-bottom: 1px solid var(--border);
-      }
-      .section-title {
-        font-size: 14px;
-        font-weight: 500;
-      }
-      .section-body {
-        padding: 24px;
-      }
-
-      .field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        margin-bottom: 14px;
-      }
-      .field label {
-        font-size: 11px;
-        font-weight: 500;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
-      .field input {
-        padding: 10px 14px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        color: var(--text);
-        font-family: var(--font);
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.2s;
-        max-width: 360px;
-      }
-      .field input:focus {
-        border-color: var(--border-hover);
-      }
-      .field input::placeholder {
-        color: var(--muted2);
-      }
-
-      .btn {
-        padding: 9px 18px;
-        border-radius: var(--radius);
-        border: none;
-        font-family: var(--font);
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .btn:hover {
-        opacity: 0.85;
-      }
-      .btn-accent {
-        background: var(--accent);
-        color: #0a0a0a;
-      }
-      .btn-outline {
-        background: none;
-        border: 1px solid var(--border);
-        color: var(--muted);
-      }
-      .btn-outline:hover {
-        border-color: var(--border-hover);
-        color: var(--text);
-        opacity: 1;
-      }
-
-      /* exam taking UI */
-      .exam-header {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 20px 24px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        position: sticky;
-        top: 73px;
-        z-index: 10;
-      }
-      .exam-meta-info {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-      }
-      .exam-meta-title {
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-      }
-      .exam-meta-sub {
-        font-size: 12px;
-        color: var(--muted);
-      }
-
-      .timer-display {
-        font-family: var(--mono);
-        font-size: 20px;
-        font-weight: 500;
-        color: var(--accent);
-        background: var(--accent-dim);
-        border: 1px solid var(--accent-border);
-        border-radius: var(--radius);
-        padding: 10px 20px;
-        letter-spacing: 0.02em;
-        transition: all 0.5s;
-      }
-      .timer-display.warning {
-        color: var(--red);
-        background: rgba(255, 68, 68, 0.08);
-        border-color: rgba(255, 68, 68, 0.2);
-      }
-
-      .progress-bar-wrap {
-        background: var(--surface2);
-        border-radius: 100px;
-        height: 3px;
-        margin-bottom: 24px;
-        overflow: hidden;
-      }
-      .progress-bar {
-        height: 100%;
-        background: var(--accent);
-        border-radius: 100px;
-        transition: width 0.3s;
-      }
-
-      .question-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 24px;
-        margin-bottom: 12px;
-        transition: border-color 0.2s;
-      }
-      .question-card.answered {
-        border-color: var(--accent-border);
-      }
-      .q-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 16px;
-      }
-      .q-num-badge {
-        font-family: var(--mono);
-        font-size: 10px;
-        padding: 3px 8px;
-        border-radius: 6px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        color: var(--muted);
-        flex-shrink: 0;
-      }
-      .q-text {
-        font-size: 15px;
-        font-weight: 500;
-        line-height: 1.5;
-      }
-      .options {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-top: 16px;
-      }
-      .option-label {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        cursor: pointer;
-        transition: all 0.15s;
-        font-size: 14px;
-      }
-      .option-label:hover {
-        border-color: var(--border-hover);
-        background: var(--surface3);
-      }
-      .option-label input[type="radio"] {
-        display: none;
-      }
-      .option-label.selected {
-        border-color: var(--accent-border);
-        background: var(--accent-dim);
-        color: var(--accent);
-      }
-      .option-key {
-        font-family: var(--mono);
-        font-size: 11px;
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
-        background: var(--surface3);
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        transition: all 0.15s;
-        color: var(--muted);
-      }
-      .option-label.selected .option-key {
-        background: var(--accent);
-        border-color: var(--accent);
-        color: #0a0a0a;
-      }
-
-      /* results */
-      .result-hero {
-        text-align: center;
-        padding: 48px 24px;
-      }
-      .result-score-ring {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 24px;
-        border: 3px solid var(--accent);
-      }
-      .result-score-ring.fail {
-        border-color: var(--red);
-      }
-      .result-pct {
-        font-size: 32px;
-        font-weight: 600;
-        letter-spacing: -0.04em;
-        color: var(--accent);
-      }
-      .result-pct.fail {
-        color: var(--red);
-      }
-      .result-status {
-        font-size: 11px;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-top: 2px;
-      }
-      .result-label {
-        font-size: 22px;
-        font-weight: 600;
-        letter-spacing: -0.03em;
-        margin-bottom: 6px;
-      }
-      .result-detail {
-        font-size: 13px;
-        color: var(--muted);
-      }
-
-      .answer-list {
-        margin-top: 24px;
-      }
-      .answer-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 14px 0;
-        border-bottom: 1px solid var(--border);
-        font-size: 13px;
-      }
-      .answer-item:last-child {
-        border-bottom: none;
-      }
-      .answer-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        margin-top: 4px;
-        flex-shrink: 0;
-      }
-      .dot-correct {
-        background: var(--green);
-      }
-      .dot-wrong {
-        background: var(--red);
-      }
-      .answer-content {
-        flex: 1;
-      }
-      .answer-q {
-        font-weight: 500;
-        margin-bottom: 4px;
-      }
-      .answer-detail {
-        color: var(--muted);
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-      .answer-yours {
-        font-family: var(--mono);
-        font-size: 11px;
-      }
-      .answer-correct-text {
-        font-family: var(--mono);
-        font-size: 11px;
-        color: var(--green);
-      }
-
-      /* history */
-      .history-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 0;
-        border-bottom: 1px solid var(--border);
-      }
-      .history-item:last-child {
-        border-bottom: none;
-      }
-      .history-info {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-      }
-      .history-name {
-        font-size: 14px;
-        font-weight: 500;
-      }
-      .history-meta {
-        font-size: 12px;
-        color: var(--muted);
-      }
-      .history-score {
-        text-align: right;
-      }
-      .history-pct {
-        font-family: var(--mono);
-        font-size: 16px;
-        font-weight: 500;
-      }
-      .pass-text {
-        color: var(--green);
-      }
-      .fail-text {
-        color: var(--red);
-      }
-
-      .empty {
-        text-align: center;
-        padding: 48px 24px;
-        color: var(--muted);
-        font-size: 13px;
-      }
-      .empty-icon {
-        font-size: 32px;
-        margin-bottom: 12px;
-      }
-
-      .toast {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 12px 18px;
-        font-size: 13px;
-        color: var(--text);
-        opacity: 0;
-        transform: translateY(8px);
-        transition: all 0.25s;
-        z-index: 999;
-      }
-      .toast.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <div class="nav-brand">
-        <div class="nav-brand-icon">✦</div>
-        Exam<span>ly</span>
+  <main>
+    <!-- Join exam -->
+    <div class="page active" id="page-join">
+      <div class="page-header">
+        <div class="page-title">Join exam</div>
+        <div class="page-sub">Enter the exam ID provided by your teacher</div>
       </div>
-      <div class="nav-right">
-        <span class="role-badge">Student</span>
-        <div class="nav-user">
-          <div class="nav-avatar" id="avatarInitials">S</div>
-          <span id="navName">Student</span>
+      <div class="section">
+        <div class="section-head"><span class="section-title">Enter exam ID</span></div>
+        <div class="section-body">
+          <div class="field">
+            <label>Exam ID</label>
+            <input type="text" id="examIdInput" placeholder="e.g. exam_1712345678"
+              onkeydown="if(event.key==='Enter') loadExam()" />
+          </div>
+          <button class="btn btn-accent" onclick="loadExam()">Start exam →</button>
         </div>
-        <button class="btn-ghost" onclick="logout()">Sign out</button>
       </div>
-    </nav>
-
-    <div class="layout">
-      <aside>
-        <div class="sidebar-section">Exams</div>
-        <div class="sidebar-item active" onclick="showPage('join', this)">
-          <span class="sidebar-icon">◈</span> Join exam
-        </div>
-        <div class="sidebar-section">History</div>
-        <div class="sidebar-item" onclick="showPage('history', this)">
-          <span class="sidebar-icon">◎</span> My results
-        </div>
-      </aside>
-
-      <main>
-        <!-- Join exam -->
-        <div class="page active" id="page-join">
-          <div class="page-header">
-            <div class="page-title">Join exam</div>
-            <div class="page-sub">
-              Enter the exam ID provided by your teacher
-            </div>
-          </div>
-          <div class="section">
-            <div class="section-head">
-              <span class="section-title">Enter exam ID</span>
-            </div>
-            <div class="section-body">
-              <div class="field">
-                <label>Exam ID</label>
-                <input
-                  type="text"
-                  id="examIdInput"
-                  placeholder="e.g. exam_1712345678"
-                  onkeydown="if (event.key === 'Enter') loadExam();"
-                />
-              </div>
-              <button class="btn btn-accent" onclick="loadExam()">
-                Start exam →
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Taking exam -->
-        <div class="page" id="page-exam">
-          <div class="exam-header">
-            <div class="exam-meta-info">
-              <div class="exam-meta-title" id="examTitle">—</div>
-              <div class="exam-meta-sub" id="examSubject">—</div>
-            </div>
-            <div class="timer-display" id="timer">00:00</div>
-          </div>
-          <div class="progress-bar-wrap">
-            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-          </div>
-          <div id="questionsContainer"></div>
-          <div
-            style="
-              display: flex;
-              justify-content: flex-end;
-              margin-top: 8px;
-              margin-bottom: 32px;
-            "
-          >
-            <button
-              class="btn btn-accent"
-              onclick="submitExam()"
-              style="padding: 12px 28px; font-size: 14px"
-            >
-              Submit exam →
-            </button>
-          </div>
-        </div>
-
-        <!-- Results -->
-        <div class="page" id="page-result">
-          <div class="page-header">
-            <div class="page-title">Results</div>
-            <div class="page-sub">Your exam performance</div>
-          </div>
-          <div class="section">
-            <div class="section-body">
-              <div class="result-hero">
-                <div class="result-score-ring" id="scoreRing">
-                  <div class="result-pct" id="resultPct">0%</div>
-                  <div class="result-status" id="resultStatus">score</div>
-                </div>
-                <div class="result-label" id="resultLabel">—</div>
-                <div class="result-detail" id="resultDetail">—</div>
-              </div>
-              <div class="answer-list" id="answerList"></div>
-              <div
-                style="
-                  display: flex;
-                  gap: 10px;
-                  justify-content: center;
-                  margin-top: 28px;
-                "
-              >
-                <button
-                  class="btn btn-outline"
-                  onclick="
-                    showPage(
-                      'history',
-                      document.querySelector('[onclick*=history]'),
-                    )
-                  "
-                >
-                  View all results
-                </button>
-                <button
-                  class="btn btn-accent"
-                  onclick="
-                    showPage('join', document.querySelector('[onclick*=join]'))
-                  "
-                >
-                  Take another exam
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- History -->
-        <div class="page" id="page-history">
-          <div class="page-header">
-            <div class="page-title">My results</div>
-            <div class="page-sub">All your past exam submissions</div>
-          </div>
-          <div class="section">
-            <div class="section-body" id="historyList">
-              <div class="empty">
-                <div class="empty-icon">📊</div>
-                No exams taken yet.
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <!-- Taking exam -->
+    <div class="page" id="page-exam">
+      <div class="exam-header">
+        <div class="exam-meta-info">
+          <div class="exam-meta-title" id="examTitle">—</div>
+          <div class="exam-meta-sub" id="examSubject">—</div>
+        </div>
+        <div class="timer-display" id="timer">00:00</div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+      <div id="questionsContainer"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:32px">
+        <button class="btn btn-accent" onclick="submitExam()" style="padding:12px 28px;font-size:14px">
+          Submit exam →
+        </button>
+      </div>
+    </div>
 
-    <script>
-      const API =
-        "https://examsystem-functions-ceh9frbfbwg3bffc.centralindia-01.azurewebsites.net/api";
-      let currentUser = null;
-      let currentExam = null;
-      let answers = [];
-      let timerInterval = null;
-      let timeLeft = 0;
+    <!-- Results -->
+    <div class="page" id="page-result">
+      <div class="page-header">
+        <div class="page-title">Results</div>
+        <div class="page-sub">Your exam performance</div>
+      </div>
+      <div class="section">
+        <div class="result-hero">
+          <div class="result-score-ring" id="scoreRing">
+            <div class="result-pct" id="resultPct">0%</div>
+            <div class="result-status" id="resultStatus">score</div>
+          </div>
+          <div class="result-label" id="resultLabel">—</div>
+          <div class="result-detail" id="resultDetail">—</div>
+        </div>
+        <div class="answer-list" id="answerList"></div>
+        <div class="result-actions">
+          <button class="btn btn-outline" onclick="showPage('history', document.querySelector('[onclick*=history]'))">
+            All results
+          </button>
+          <button class="btn btn-accent" id="detailedBtn" onclick="">
+            View full breakdown →
+          </button>
+          <button class="btn btn-outline" onclick="showPage('join', document.querySelector('[onclick*=join]'))">
+            Take another exam
+          </button>
+        </div>
+      </div>
+    </div>
 
-      // Auth guard
-      const sess = sessionStorage.getItem("examly_user");
-      if (!sess) {
-        window.location.href = "index.html";
-      } else {
-        currentUser = JSON.parse(sess);
-        if (currentUser.role !== "student")
-          window.location.href = "teacher.html";
-        document.getElementById("navName").textContent = currentUser.name;
-        document.getElementById("avatarInitials").textContent = currentUser.name
-          .split(" ")
-          .map((n) => n[0])
-          .join("")
-          .toUpperCase()
-          .slice(0, 2);
-      }
+    <!-- History -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <div class="page-title">My results</div>
+        <div class="page-sub">All your past exam submissions</div>
+      </div>
+      <div class="section">
+        <div class="section-body" id="historyList">
+          <div class="empty"><div class="empty-icon">📊</div>No exams taken yet.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
 
-      function logout() {
-        sessionStorage.clear();
-        window.location.href = "index.html";
-      }
+<div class="toast" id="toast"></div>
 
-      function showPage(id, el) {
-        document
-          .querySelectorAll(".page")
-          .forEach((p) => p.classList.remove("active"));
-        document
-          .querySelectorAll(".sidebar-item")
-          .forEach((s) => s.classList.remove("active"));
-        document.getElementById("page-" + id).classList.add("active");
-        if (el) el.classList.add("active");
-        if (id === "history") renderHistory();
-      }
+<script>
+  const API = 'https://examsystem-functions-ceh9frbfbwg3bffc.centralindia-01.azurewebsites.net/api';
+  let currentUser = null;
+  let currentExam = null;
+  let answers = [];
+  let timerInterval = null;
+  let timeLeft = 0;
+  let lastResultId = null;
 
-      function toast(msg) {
-        const t = document.getElementById("toast");
-        t.textContent = msg;
-        t.classList.add("show");
-        setTimeout(() => t.classList.remove("show"), 3000);
-      }
+  const sess = sessionStorage.getItem('examly_user');
+  if (!sess) { window.location.href = 'index.html'; }
+  else {
+    currentUser = JSON.parse(sess);
+    if (currentUser.role !== 'student') window.location.href = 'teacher.html';
+    document.getElementById('navName').textContent = currentUser.name;
+    document.getElementById('avatarInitials').textContent =
+      currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+  }
 
-      async function loadExam() {
-        const examId = document.getElementById("examIdInput").value.trim();
-        if (!examId) {
-          toast("Please enter an exam ID");
-          return;
-        }
+  function logout() { sessionStorage.clear(); window.location.href = 'index.html'; }
 
-        // Try local storage first (works without API)
-        const exams = JSON.parse(localStorage.getItem("examly_exams") || "[]");
-        let exam = exams.find((e) => e.id === examId);
+  function showPage(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+    if (id === 'history') renderHistory();
+  }
 
-        if (!exam) {
-          try {
-            const res = await fetch(`${API}/getExam?examId=${examId}`);
-            if (res.ok) exam = await res.json();
-          } catch (e) {}
-        }
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
 
-        if (!exam) {
-          toast("Exam not found. Check the ID and try again.");
-          return;
-        }
+  async function loadExam() {
+    const examId = document.getElementById('examIdInput').value.trim();
+    if (!examId) { toast('Please enter an exam ID'); return; }
 
-        // Check if already attempted
-        const results = JSON.parse(
-          localStorage.getItem("examly_results") || "[]",
-        );
-        if (
-          results.find(
-            (r) => r.examId === examId && r.studentId === currentUser.id,
-          )
-        ) {
-          toast("You have already taken this exam.");
-          return;
-        }
+    const exams = JSON.parse(localStorage.getItem('examly_exams') || '[]');
+    let exam = exams.find(e => e.id === examId);
 
-        currentExam = exam;
-        // Strip correct answers from student view
-        currentExam.safeQuestions = exam.questions.map((q) => ({
-          id: q.id,
-          text: q.text,
-          options: q.options,
-        }));
-        answers = new Array(exam.questions.length).fill("");
-        startExam();
-      }
+    if (!exam) {
+      try {
+        const res = await fetch(`${API}/getExam?examId=${examId}`);
+        if (res.ok) exam = await res.json();
+      } catch (e) {}
+    }
 
-      function startExam() {
-        document.getElementById("examTitle").textContent = currentExam.title;
-        document.getElementById("examSubject").textContent =
-          currentExam.subject +
-          " · " +
-          currentExam.questions.length +
-          " questions";
-        renderQuestions();
-        startTimer(currentExam.duration);
-        showPage("exam", null);
-        document
-          .querySelectorAll(".sidebar-item")
-          .forEach((s) => s.classList.remove("active"));
-      }
+    if (!exam) { toast('Exam not found. Check the ID and try again.'); return; }
 
-      function renderQuestions() {
-        const keys = ["A", "B", "C", "D"];
-        const container = document.getElementById("questionsContainer");
-        container.innerHTML = currentExam.safeQuestions
-          .map(
-            (q, idx) => `
+    const results = JSON.parse(localStorage.getItem('examly_results') || '[]');
+    if (results.find(r => r.examId === examId && r.studentId === currentUser.id)) {
+      toast('You have already taken this exam.');
+      return;
+    }
+
+    currentExam = exam;
+    currentExam.safeQuestions = exam.questions.map(q => ({ id: q.id, text: q.text, options: q.options }));
+    answers = new Array(exam.questions.length).fill('');
+    startExam();
+  }
+
+  function startExam() {
+    document.getElementById('examTitle').textContent = currentExam.title;
+    document.getElementById('examSubject').textContent = currentExam.subject + ' · ' + currentExam.questions.length + ' questions';
+    renderQuestions();
+    startTimer(currentExam.duration);
+    showPage('exam', null);
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  }
+
+  function renderQuestions() {
+    const keys = ['A','B','C','D'];
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = currentExam.safeQuestions.map((q, idx) => `
       <div class="question-card" id="qcard-${idx}">
         <div class="q-header">
           <span class="q-num-badge">Q${idx + 1}</span>
           <span class="q-text">${q.text}</span>
         </div>
         <div class="options">
-          ${q.options
-            .map(
-              (opt, oi) => `
-            <label class="option-label" id="opt-${idx}-${oi}" onclick="selectAnswer(${idx}, '${opt.replace(/'/g, "\\'")}', ${oi})">
+          ${q.options.map((opt, oi) => `
+            <label class="option-label" id="opt-${idx}-${oi}"
+              onclick="selectAnswer(${idx}, '${opt.replace(/'/g,"\\'")}', ${oi})">
               <input type="radio" name="q${idx}" value="${opt}" />
               <span class="option-key">${keys[oi]}</span>
               ${opt}
-            </label>`,
-            )
-            .join("")}
+            </label>`).join('')}
         </div>
-      </div>`,
-          )
-          .join("");
-      }
+      </div>`).join('');
+  }
 
-      function selectAnswer(idx, val, optIdx) {
-        answers[idx] = val;
-        // Update UI
-        document
-          .querySelectorAll(`[id^="opt-${idx}-"]`)
-          .forEach((el) => el.classList.remove("selected"));
-        document
-          .getElementById(`opt-${idx}-${optIdx}`)
-          .classList.add("selected");
-        document.getElementById(`qcard-${idx}`).classList.add("answered");
-        // Update progress
-        const answered = answers.filter((a) => a !== "").length;
-        document.getElementById("progressBar").style.width =
-          (answered / answers.length) * 100 + "%";
-      }
+  function selectAnswer(idx, val, optIdx) {
+    answers[idx] = val;
+    document.querySelectorAll(`[id^="opt-${idx}-"]`).forEach(el => el.classList.remove('selected'));
+    document.getElementById(`opt-${idx}-${optIdx}`).classList.add('selected');
+    document.getElementById(`qcard-${idx}`).classList.add('answered');
+    const answered = answers.filter(a => a !== '').length;
+    document.getElementById('progressBar').style.width = (answered / answers.length * 100) + '%';
+  }
 
-      function startTimer(minutes) {
-        timeLeft = minutes * 60;
-        updateTimerDisplay();
-        timerInterval = setInterval(() => {
-          timeLeft--;
-          updateTimerDisplay();
-          if (timeLeft <= 60)
-            document.getElementById("timer").classList.add("warning");
-          if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            toast("Time is up! Submitting...");
-            submitExam();
-          }
-        }, 1000);
-      }
+  function startTimer(minutes) {
+    timeLeft = minutes * 60;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 60) document.getElementById('timer').classList.add('warning');
+      if (timeLeft <= 0) { clearInterval(timerInterval); toast('Time is up! Submitting...'); submitExam(); }
+    }, 1000);
+  }
 
-      function updateTimerDisplay() {
-        const m = Math.floor(timeLeft / 60);
-        const s = timeLeft % 60;
-        document.getElementById("timer").textContent =
-          String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
-      }
+  function updateTimerDisplay() {
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    document.getElementById('timer').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
 
-      async function submitExam() {
-        clearInterval(timerInterval);
-        const unanswered = answers.filter((a) => !a).length;
-        if (unanswered > 0) {
-          if (!confirm(`${unanswered} question(s) unanswered. Submit anyway?`))
-            return;
-        }
+  async function submitExam() {
+    clearInterval(timerInterval);
+    const unanswered = answers.filter(a => !a).length;
+    if (unanswered > 0) {
+      if (!confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
+    }
 
-        // Grade locally
-        let score = 0;
-        const gradedAnswers = currentExam.questions.map((q, i) => {
-          const isCorrect = answers[i] === q.correctAnswer;
-          if (isCorrect) score++;
-          return {
-            questionText: q.text,
-            studentAnswer: answers[i] || "(no answer)",
-            correctAnswer: q.correctAnswer,
-            isCorrect,
-          };
-        });
+    let score = 0;
+    const gradedAnswers = currentExam.questions.map((q, i) => {
+      const isCorrect = answers[i] === q.correctAnswer;
+      if (isCorrect) score++;
+      return {
+        questionText: q.text,
+        options: q.options,
+        studentAnswer: answers[i] || '(no answer)',
+        correctAnswer: q.correctAnswer,
+        isCorrect
+      };
+    });
 
-        const percentage = Math.round(
-          (score / currentExam.questions.length) * 100,
-        );
-        const passPercent = currentExam.passPercent || 50;
-        const passed = percentage >= passPercent;
+    const percentage = Math.round((score / currentExam.questions.length) * 100);
+    const passPercent = currentExam.passPercent || 50;
+    const passed = percentage >= passPercent;
 
-        const result = {
-          id: "res_" + Date.now(),
-          examId: currentExam.id,
-          examTitle: currentExam.title,
-          studentId: currentUser.id,
-          studentName: currentUser.name,
-          score,
-          total: currentExam.questions.length,
-          percentage,
-          passed,
-          gradedAnswers,
-          submittedAt: new Date().toISOString(),
-        };
+    const result = {
+      id: 'res_' + Date.now(),
+      examId: currentExam.id,
+      examTitle: currentExam.title,
+      studentId: currentUser.id,
+      studentName: currentUser.name,
+      score, total: currentExam.questions.length,
+      percentage, passed, gradedAnswers,
+      submittedAt: new Date().toISOString()
+    };
 
-        // Save locally
-        const results = JSON.parse(
-          localStorage.getItem("examly_results") || "[]",
-        );
-        results.push(result);
-        localStorage.setItem("examly_results", JSON.stringify(results));
+    const results = JSON.parse(localStorage.getItem('examly_results') || '[]');
+    results.push(result);
+    localStorage.setItem('examly_results', JSON.stringify(results));
 
-        // Try API too
-        try {
-          await fetch(`${API}/submitAnswers`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              examId: currentExam.id,
-              studentId: currentUser.id,
-              studentName: currentUser.name,
-              answers,
-            }),
-          });
-        } catch (e) {}
+    try {
+      await fetch(`${API}/submitAnswers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ examId: currentExam.id, studentId: currentUser.id, studentName: currentUser.name, answers })
+      });
+    } catch (e) {}
 
-        showResults(result);
-      }
+    showResults(result);
+  }
 
-      function showResults(result) {
-        const ring = document.getElementById("scoreRing");
-        const pct = document.getElementById("resultPct");
-        ring.className = "result-score-ring" + (result.passed ? "" : " fail");
-        pct.className = "result-pct" + (result.passed ? "" : " fail");
-        pct.textContent = result.percentage + "%";
-        document.getElementById("resultStatus").textContent = result.passed
-          ? "passed"
-          : "failed";
-        document.getElementById("resultLabel").textContent = result.passed
-          ? "🎉 Well done!"
-          : "Better luck next time";
-        document.getElementById("resultDetail").textContent =
-          `You scored ${result.score} out of ${result.total} questions correctly on ${result.examTitle}`;
+  function showResults(result) {
+    lastResultId = result.id;
 
-        document.getElementById("answerList").innerHTML = result.gradedAnswers
-          .map(
-            (a) => `
+    const ring = document.getElementById('scoreRing');
+    const pct = document.getElementById('resultPct');
+    ring.className = 'result-score-ring' + (result.passed ? '' : ' fail');
+    pct.className = 'result-pct' + (result.passed ? '' : ' fail');
+    pct.textContent = result.percentage + '%';
+    document.getElementById('resultStatus').textContent = result.passed ? 'passed' : 'failed';
+    document.getElementById('resultLabel').textContent = result.passed ? '🎉 Well done!' : 'Better luck next time';
+    document.getElementById('resultDetail').textContent =
+      `You scored ${result.score} out of ${result.total} questions correctly on ${result.examTitle}`;
+
+    document.getElementById('answerList').innerHTML = result.gradedAnswers.map(a => `
       <div class="answer-item">
-        <div class="answer-dot ${a.isCorrect ? "dot-correct" : "dot-wrong"}"></div>
+        <div class="answer-dot ${a.isCorrect ? 'dot-correct' : 'dot-wrong'}"></div>
         <div class="answer-content">
           <div class="answer-q">${a.questionText}</div>
           <div class="answer-detail">
             <span class="answer-yours">Your answer: ${a.studentAnswer}</span>
-            ${!a.isCorrect ? `<span class="answer-correct-text">Correct: ${a.correctAnswer}</span>` : ""}
-            // Add this button in showResults function
-        <button onclick="window.location.href='results.html?mode=student&resultId=${result.id}'">View detailed results</button>
+            ${!a.isCorrect ? `<span class="answer-correct-text">Correct: ${a.correctAnswer}</span>` : ''}
           </div>
         </div>
-      </div>`,
-          )
-          .join("");
+      </div>`).join('');
 
-        showPage("result", null);
-        document
-          .querySelectorAll(".sidebar-item")
-          .forEach((s) => s.classList.remove("active"));
-      }
+    document.getElementById('detailedBtn').onclick = () => {
+      window.location.href = 'results.html?mode=student&resultId=' + result.id;
+    };
 
-      function renderHistory() {
-        const results = JSON.parse(
-          localStorage.getItem("examly_results") || "[]",
-        ).filter((r) => r.studentId === currentUser.id);
-        const el = document.getElementById("historyList");
-        if (!results.length) {
-          el.innerHTML =
-            '<div class="empty"><div class="empty-icon">📊</div>No exams taken yet.</div>';
-          return;
-        }
-        el.innerHTML = results
-          .reverse()
-          .map(
-            (r) => `
-      <div class="history-item">
+    showPage('result', null);
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  }
+
+  function renderHistory() {
+    const results = JSON.parse(localStorage.getItem('examly_results') || '[]')
+      .filter(r => r.studentId === currentUser.id);
+    const el = document.getElementById('historyList');
+    if (!results.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">📊</div>No exams taken yet.</div>';
+      return;
+    }
+    el.innerHTML = results.slice().reverse().map(r => `
+      <div class="history-item" onclick="window.location.href='results.html?mode=student&resultId=${r.id}'">
         <div class="history-info">
           <span class="history-name">${r.examTitle}</span>
-          <span class="history-meta">${new Date(r.submittedAt).toLocaleDateString()} · ${r.total} questions</span>
+          <span class="history-meta">${new Date(r.submittedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · ${r.total} questions</span>
         </div>
         <div class="history-score">
-          <div class="history-pct ${r.passed ? "pass-text" : "fail-text"}">${r.percentage}%</div>
-          <div style="font-size:11px;color:var(--muted);text-align:right">${r.score}/${r.total}</div>
+          <div class="history-pct ${r.passed ? 'pass-text' : 'fail-text'}">${r.percentage}%</div>
+          <div style="font-size:11px;color:var(--muted)">${r.score}/${r.total} · ${r.passed ? 'Pass' : 'Fail'}</div>
         </div>
-      </div>`,
-          )
-          .join("");
-      }
-    </script>
-  </body>
+      </div>`).join('');
+  }
+</script>
+</body>
 </html>
