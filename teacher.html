@@ -993,7 +993,6 @@
           );
         }
       }
-
       function renderMyExams() {
         const exams = JSON.parse(
           localStorage.getItem("examly_exams") || "[]",
@@ -1008,20 +1007,22 @@
           .reverse()
           .map(
             (e) => `
-      <div class="exam-row">
-        <div class="exam-info">
-          <span class="exam-name">${e.title}</span>
-          <span class="exam-meta">
-            <span>${e.subject}</span>
-            <span>${e.questions.length} questions</span>
-            <span>${e.duration} min</span>
-          </span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="badge badge-active">Active</span>
-          <span class="exam-id" onclick="copyId('${e.id}')" title="Click to copy">${e.id}</span>
-        </div>
-      </div>`,
+        <div class="exam-row" id="examrow-${e.id}">
+            <div class="exam-info">
+                <span class="exam-name">${e.title}</span>
+                <span class="exam-meta">
+                    <span>${e.subject}</span>
+                    <span>${e.questions.length} questions</span>
+                    <span>${e.duration} min</span>
+                </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+                <span class="badge badge-active">Active</span>
+                <span class="exam-id" onclick="copyId('${e.id}')">${e.id}</span>
+                <button class="btn btn-outline btn-sm" onclick="editExam('${e.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteExam('${e.id}')">Delete</button>
+            </div>
+        </div>`,
           )
           .join("");
       }
@@ -1099,6 +1100,139 @@
       }
 
       updateDashboard();
+      // Edit exam — loads exam into create form
+      function editExam(examId) {
+        const exams = JSON.parse(localStorage.getItem("examly_exams") || "[]");
+        const exam = exams.find((e) => e.id === examId);
+        if (!exam) {
+          toast("Exam not found");
+          return;
+        }
+
+        // Switch to create page
+        showPage("create", document.querySelector("[onclick*=create]"));
+
+        // Fill form
+        document.getElementById("examTitle").value = exam.title;
+        document.getElementById("examSubject").value = exam.subject;
+        document.getElementById("examDuration").value = exam.duration;
+        document.getElementById("examPass").value = exam.passPercent || 50;
+
+        // Load questions
+        questions = exam.questions.map((q) => ({ ...q }));
+        document.getElementById("questionsContainer").innerHTML = "";
+        document.getElementById("noQuestions").style.display = "none";
+        questions.forEach((q, idx) => renderQuestion(idx));
+        updateQCount();
+
+        // Change publish button to update
+        const btn = document.querySelector('[onclick="publishExam()"]');
+        btn.textContent = "Update exam →";
+        btn.onclick = () => saveEditedExam(examId);
+
+        toast("Editing exam — make changes and click Update", true);
+      }
+
+      // Save edited exam
+      async function saveEditedExam(examId) {
+        const title = document.getElementById("examTitle").value.trim();
+        const subject = document.getElementById("examSubject").value.trim();
+        const duration =
+          parseInt(document.getElementById("examDuration").value) || 60;
+        const passPercent =
+          parseInt(document.getElementById("examPass").value) || 50;
+
+        if (!title || !subject) {
+          toast("Please fill exam title and subject");
+          return;
+        }
+        if (questions.length === 0) {
+          toast("Add at least one question");
+          return;
+        }
+        for (let q of questions) {
+          if (!q.text || q.options.some((o) => !o) || !q.correctAnswer) {
+            toast("Fill all question fields");
+            return;
+          }
+        }
+
+        // Update locally
+        const exams = JSON.parse(localStorage.getItem("examly_exams") || "[]");
+        const idx = exams.findIndex((e) => e.id === examId);
+        if (idx !== -1) {
+          exams[idx] = {
+            ...exams[idx],
+            title,
+            subject,
+            duration,
+            passPercent,
+            questions,
+            updatedAt: new Date().toISOString(),
+          };
+          localStorage.setItem("examly_exams", JSON.stringify(exams));
+        }
+
+        // Update in Azure
+        try {
+          await fetch(`${API}/updateexam`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              examId,
+              title,
+              subject,
+              duration,
+              passPercent,
+              questions,
+            }),
+          });
+        } catch (e) {}
+
+        // Reset button back
+        const btn = document.querySelector('[onclick*="saveEditedExam"]');
+        if (btn) {
+          btn.textContent = "Publish exam →";
+          btn.onclick = publishExam;
+        }
+
+        toast("Exam updated successfully!", true);
+        resetForm();
+        setTimeout(
+          () =>
+            showPage("myexams", document.querySelector("[onclick*=myexams]")),
+          1000,
+        );
+      }
+
+      // Delete exam
+      async function deleteExam(examId) {
+        if (
+          !confirm(
+            "Are you sure you want to delete this exam? This cannot be undone.",
+          )
+        )
+          return;
+
+        // Delete locally
+        const exams = JSON.parse(
+          localStorage.getItem("examly_exams") || "[]",
+        ).filter((e) => e.id !== examId);
+        localStorage.setItem("examly_exams", JSON.stringify(exams));
+
+        // Delete from Azure
+        try {
+          await fetch(`${API}/deleteexam?examId=${examId}`, {
+            method: "DELETE",
+          });
+        } catch (e) {}
+
+        // Remove row from UI instantly
+        const row = document.getElementById("examrow-" + examId);
+        if (row) row.remove();
+
+        toast("Exam deleted", true);
+      }
     </script>
   </body>
 </html>

@@ -1035,6 +1035,8 @@
           <div class="answer-detail">
             <span class="answer-yours">Your answer: ${a.studentAnswer}</span>
             ${!a.isCorrect ? `<span class="answer-correct-text">Correct: ${a.correctAnswer}</span>` : ""}
+            // Add this button in showResults function
+        <button onclick="window.location.href='results.html?mode=student&resultId=${result.id}'">View detailed results</button>
           </div>
         </div>
       </div>`,

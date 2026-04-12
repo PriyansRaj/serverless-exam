@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examly — Results</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0a;--surface:#111111;--surface2:#1a1a1a;--surface3:#222222;
+    --border:#222222;--border-hover:#333333;--text:#f0f0f0;--muted:#666666;--muted2:#444444;
+    --accent:#e8ff47;--accent-dim:rgba(232,255,71,0.06);--accent-border:rgba(232,255,71,0.15);
+    --red:#ff4444;--green:#44ff88;--radius:10px;
+    --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;letter-spacing:-0.02em;}
+  .nav-brand-icon{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#0a0a0a;}
+  .nav-brand span{color:var(--accent);}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .btn{padding:8px 16px;border-radius:var(--radius);border:none;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;}
+  .btn-ghost{padding:7px 14px;background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:var(--font);font-size:13px;cursor:pointer;transition:all 0.2s;}
+  .btn-ghost:hover{border-color:var(--border-hover);color:var(--text);}
+  .btn-outline{background:none;border:1px solid var(--border);color:var(--muted);}
+  .btn-outline:hover{border-color:var(--border-hover);color:var(--text);}
+  .btn-accent{background:var(--accent);color:#0a0a0a;}
+  .container{max-width:900px;margin:0 auto;padding:32px 24px;}
+  .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;margin-bottom:24px;transition:color 0.2s;background:none;border:none;font-family:var(--font);padding:0;}
+  .back-btn:hover{color:var(--text);}
+  .hero{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;margin-bottom:20px;animation:fadeUp 0.3s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .score-ring{width:130px;height:130px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;flex-shrink:0;}
+  .score-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+  .score-ring-text{position:relative;z-index:1;text-align:center;}
+  .score-pct{font-size:32px;font-weight:600;letter-spacing:-0.04em;color:var(--green);}
+  .score-pct.fail{color:var(--red);}
+  .score-fraction{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px;}
+  .hero-title{font-size:22px;font-weight:600;letter-spacing:-0.03em;margin-bottom:4px;}
+  .hero-sub{font-size:13px;color:var(--muted);margin-bottom:12px;}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;}
+  .badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:500;font-family:var(--mono);}
+  .badge-pass{background:rgba(68,255,136,0.1);border:1px solid rgba(68,255,136,0.2);color:var(--green);}
+  .badge-fail{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);color:var(--red);}
+  .badge-neutral{background:var(--surface2);border:1px solid var(--border);color:var(--muted);}
+  .badge-accent{background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);}
+  .perf-bar-wrap{background:var(--surface2);border-radius:100px;overflow:hidden;}
+  .perf-bar{height:100%;border-radius:100px;transition:width 1s ease;}
+  .perf-green{background:var(--green);}
+  .perf-red{background:var(--red);}
+  .perf-accent{background:var(--accent);}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+  .stat-value{font-size:24px;font-weight:600;letter-spacing:-0.04em;margin-top:6px;}
+  .stat-accent{color:var(--accent);}
+  .stat-green{color:var(--green);}
+  .stat-red{color:var(--red);}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;}
+  .section-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);}
+  .section-title{font-size:14px;font-weight:500;}
+  .section-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .q-review{padding:20px 24px;border-bottom:1px solid var(--border);}
+  .q-review:last-child{border-bottom:none;}
+  .q-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;}
+  .q-num{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);flex-shrink:0;margin-top:2px;}
+  .q-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+  .dot-c{background:var(--green);}
+  .dot-w{background:var(--red);}
+  .dot-s{background:var(--muted);}
+  .q-text{font-size:14px;font-weight:500;line-height:1.5;flex:1;}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:13px;border:1px solid var(--border);background:var(--surface2);}
+  .opt.c{border-color:rgba(68,255,136,0.3);background:rgba(68,255,136,0.06);color:var(--green);}
+  .opt.w{border-color:rgba(255,68,68,0.3);background:rgba(255,68,68,0.06);color:var(--red);}
+  .opt-key{font-family:var(--mono);font-size:11px;width:20px;height:20px;border-radius:5px;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);}
+  .opt.c .opt-key{background:rgba(68,255,136,0.2);border-color:rgba(68,255,136,0.3);color:var(--green);}
+  .opt.w .opt-key{background:rgba(255,68,68,0.2);border-color:rgba(255,68,68,0.3);color:var(--red);}
+  .opt-tag{margin-left:auto;font-size:11px;font-family:var(--mono);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;padding:12px 16px;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border);background:var(--surface2);}
+  td{padding:13px 16px;border-bottom:1px solid var(--border);}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--surface2);}
+  .td-mono{font-family:var(--mono);font-size:12px;}
+  .pass-text{color:var(--green);font-weight:500;}
+  .fail-text{color:var(--red);font-weight:500;}
+  .expand-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:var(--font);font-size:12px;padding:4px 10px;cursor:pointer;transition:all 0.2s;}
+  .expand-btn:hover{border-color:var(--border-hover);color:var(--text);}
+  .student-detail{display:none;background:var(--surface2);border-top:1px solid var(--border);padding:16px 24px;}
+  .student-detail.open{display:block;}
+  .detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .detail-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font-size:12px;}
+  .empty{text-align:center;padding:48px 24px;color:var(--muted);font-size:13px;}
+  .empty-icon{font-size:32px;margin-bottom:12px;}
+  @media print{nav,.back-btn,.btn,.expand-btn{display:none!important;}body{background:white;color:black;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand"><div class="nav-brand-icon">✦</div>Exam<span>ly</span> — Results</div>
+  <div class="nav-right">
+    <button class="btn btn-outline" onclick="window.print()">Save as PDF</button>
+    <button class="btn-ghost" onclick="history.back()">← Back</button>
+  </div>
+</nav>
+
+<div class="container" id="app">
+  <div class="empty"><div class="empty-icon">⏳</div>Loading...</div>
+</div>
+
+<script>
+const user = JSON.parse(sessionStorage.getItem('examly_user') || '{}');
+const p = new URLSearchParams(window.location.search);
+const resultId = p.get('resultId');
+const examId = p.get('examId');
+const mode = p.get('mode') || (user.role || 'student');
+const KEYS = ['A','B','C','D'];
+
+if (!user.id) window.location.href = 'index.html';
+
+function $(id){ return document.getElementById(id); }
+function html(id, h){ $(id).innerHTML = h; }
+
+function init() {
+  if (resultId) renderOneResult();
+  else if (examId && mode === 'teacher') renderExamResults();
+  else if (mode === 'teacher') renderTeacherAll();
+  else renderStudentAll();
+}
+
+// ── Single result detail (student or teacher viewing one student) ──
+function renderOneResult() {
+  const results = JSON.parse(localStorage.getItem('examly_results') || '[]');
+  const r = results.find(x => x.id === resultId);
+  if (!r) { html('app','<div class="empty"><div class="empty-icon">❌</div>Result not found.</div>'); return; }
+  const correct = (r.gradedAnswers||[]).filter(a=>a.isCorrect).length;
+  const wrong   = (r.gradedAnswers||[]).filter(a=>!a.isCorrect && a.studentAnswer && a.studentAnswer!=='(no answer)').length;
+  const skipped = (r.gradedAnswers||[]).filter(a=>!a.studentAnswer||a.studentAnswer==='(no answer)').length;
+  const circ    = 2*Math.PI*58;
+
+  html('app', `
+    <button class="back-btn" onclick="history.back()">← Back</button>
+    <div class="hero">
+      <div class="score-ring">
+        <svg viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="58" fill="none" stroke="var(--surface2)" stroke-width="6"/>
+          <circle cx="65" cy="65" r="58" fill="none" stroke="${r.passed?'#44ff88':'#ff4444'}" stroke-width="6"
+            stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-r.percentage/100)}" stroke-linecap="round"/>
+        </svg>
+        <div class="score-ring-text">
+          <div class="score-pct${r.passed?'':' fail'}">${r.percentage}%</div>
+          <div class="score-fraction">${r.score}/${r.total}</div>
+        </div>
+      </div>
+      <div>
+        <div class="hero-title">${r.examTitle}</div>
+        <div class="hero-sub">${mode==='teacher'?'Student: '+r.studentName+' · ':''}${new Date(r.submittedAt).toLocaleString()}</div>
+        <div class="badges" style="margin-top:10px">
+          <span class="badge ${r.passed?'badge-pass':'badge-fail'}">${r.passed?'Passed':'Failed'}</span>
+          <span class="badge badge-accent">${correct} correct</span>
+          ${wrong?`<span class="badge badge-fail">${wrong} wrong</span>`:''}
+          ${skipped?`<span class="badge badge-neutral">${skipped} skipped</span>`:''}
+          <span class="badge badge-neutral">${r.total} questions</span>
+        </div>
+        <div style="margin-top:14px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:5px">Score</div>
+          <div class="perf-bar-wrap" style="height:6px">
+            <div class="perf-bar ${r.passed?'perf-green':'perf-red'}" style="width:${r.percentage}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-label">Correct</div><div class="stat-value stat-green">${correct}</div></div>
+      <div class="stat-card"><div class="stat-label">Wrong</div><div class="stat-value stat-red">${wrong}</div></div>
+      <div class="stat-card"><div class="stat-label">Skipped</div><div class="stat-value" style="color:var(--muted)">${skipped}</div></div>
+      <div class="stat-card"><div class="stat-label">Accuracy</div><div class="stat-value stat-accent">${r.percentage}%</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Question by question review</div>
+          <div class="section-sub">Green = correct · Red = wrong answer</div>
+        </div>
+        <div class="badges">
+          <span class="badge badge-pass">● correct</span>
+          <span class="badge badge-fail">● wrong</span>
+          <span class="badge badge-neutral">● skipped</span>
+        </div>
+      </div>
+      ${(r.gradedAnswers||[]).map((a,i)=>{
+        const skp = !a.studentAnswer||a.studentAnswer==='(no answer)';
+        const opts = a.options || [];
+        return `
+        <div class="q-review">
+          <div class="q-header">
+            <span class="q-num">Q${i+1}</span>
+            <div class="q-dot ${a.isCorrect?'dot-c':skp?'dot-s':'dot-w'}"></div>
+            <span class="q-text">${a.questionText||'Question '+(i+1)}</span>
+            <span class="badge ${a.isCorrect?'badge-pass':skp?'badge-neutral':'badge-fail'}" style="flex-shrink:0;margin-left:auto">
+              ${a.isCorrect?'Correct':skp?'Skipped':'Wrong'}
+            </span>
+          </div>
+          ${opts.length ? `
+          <div class="opts">
+            ${opts.map((opt,oi)=>{
+              const isC = opt===a.correctAnswer;
+              const isS = opt===a.studentAnswer;
+              let cls = isC&&isS?'c':isC?'c':isS?'w':'';
+              return `<div class="opt ${cls}">
+                <span class="opt-key">${KEYS[oi]}</span>
+                <span style="flex:1">${opt}</span>
+                ${isC?'<span class="opt-tag">✓ correct</span>':''}
+                ${isS&&!isC?'<span class="opt-tag">✗ yours</span>':''}
+              </div>`;
+            }).join('')}
+          </div>` : `
+          <div style="font-size:13px;color:var(--muted);display:flex;gap:16px;margin-top:4px">
+            <span>Your answer: <span style="color:${a.isCorrect?'var(--green)':'var(--red)'};font-family:var(--mono)">${a.studentAnswer||'—'}</span></span>
+            ${!a.isCorrect?`<span>Correct: <span style="color:var(--green);font-family:var(--mono)">${a.correctAnswer}</span></span>`:''}
+          </div>`}
+        </div>`;
+      }).join('')}
+    </div>`);
+}
+
+// ── Teacher: all results for one exam with analysis ──
+function renderExamResults() {
+  const exams  = JSON.parse(localStorage.getItem('examly_exams')||'[]');
+  const exam   = exams.find(e=>e.id===examId);
+  const results= JSON.parse(localStorage.getItem('examly_results')||'[]').filter(r=>r.examId===examId);
+  if (!results.length){ html('app','<button class="back-btn" onclick="history.back()">← Back</button><div class="empty"><div class="empty-icon">📊</div>No submissions yet.</div>'); return; }
+  const avg    = Math.round(results.reduce((s,r)=>s+r.percentage,0)/results.length);
+  const passed = results.filter(r=>r.passed).length;
+  const high   = Math.max(...results.map(r=>r.percentage));
+  const low    = Math.min(...results.map(r=>r.percentage));
+  const circ   = 2*Math.PI*58;
+
+  const qAnal  = exam ? exam.questions.map((q,i)=>{
+    const c = results.filter(r=>r.gradedAnswers?.[i]?.isCorrect).length;
+    return {text:q.text, correct:c, total:results.length, pct:Math.round(c/results.length*100)};
+  }) : [];
+
+  html('app',`
+    <button class="back-btn" onclick="history.back()">← Back</button>
+    <div class="hero">
+      <div class="score-ring">
+        <svg viewBox="0 0 130 130">
+          <circle cx="65" cy="65" r="58" fill="none" stroke="var(--surface2)" stroke-width="6"/>
+          <circle cx="65" cy="65" r="58" fill="none" stroke="${avg>=50?'#44ff88':'#ff4444'}" stroke-width="6"
+            stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-avg/100)}" stroke-linecap="round"/>
+        </svg>
+        <div class="score-ring-text">
+          <div class="score-pct${avg<50?' fail':''}">${avg}%</div>
+          <div class="score-fraction">class avg</div>
+        </div>
+      </div>
+      <div>
+        <div class="hero-title">${exam?exam.title:'Exam Results'}</div>
+        <div class="hero-sub">${exam?exam.subject+' · ':''}${results.length} submissions</div>
+        <div class="badges" style="margin-top:10px">
+          <span class="badge badge-neutral">${results.length} students</span>
+          <span class="badge badge-pass">${passed} passed</span>
+          <span class="badge badge-fail">${results.length-passed} failed</span>
+          <span class="badge badge-accent">Pass rate: ${Math.round(passed/results.length*100)}%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-label">Class avg</div><div class="stat-value stat-accent">${avg}%</div></div>
+      <div class="stat-card"><div class="stat-label">Highest</div><div class="stat-value stat-green">${high}%</div></div>
+      <div class="stat-card"><div class="stat-label">Lowest</div><div class="stat-value stat-red">${low}%</div></div>
+      <div class="stat-card"><div class="stat-label">Pass rate</div><div class="stat-value">${Math.round(passed/results.length*100)}%</div></div>
+    </div>
+
+    ${qAnal.length?`
+    <div class="section">
+      <div class="section-head"><div class="section-title">Question difficulty analysis</div></div>
+      ${qAnal.map((q,i)=>`
+        <div class="q-review">
+          <div class="q-header">
+            <span class="q-num">Q${i+1}</span>
+            <span class="q-text">${q.text}</span>
+            <span class="badge ${q.pct>=70?'badge-pass':q.pct>=40?'badge-accent':'badge-fail'}" style="flex-shrink:0">
+              ${q.pct>=70?'Easy':q.pct>=40?'Medium':'Hard'}
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted)">
+            <span>${q.correct}/${q.total} correct</span>
+            <div class="perf-bar-wrap" style="flex:1;height:6px">
+              <div class="perf-bar ${q.pct>=70?'perf-green':q.pct>=40?'perf-accent':'perf-red'}" style="width:${q.pct}%"></div>
+            </div>
+            <span style="min-width:36px;text-align:right;font-family:var(--mono)">${q.pct}%</span>
+          </div>
+        </div>`).join('')}
+    </div>`:''}
+
+    <div class="section">
+      <div class="section-head">
+        <div><div class="section-title">Student submissions</div><div class="section-sub">Click View for answer breakdown</div></div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Student</th><th>Score</th><th>%</th><th>Status</th><th>Submitted</th><th></th></tr></thead>
+        <tbody>
+          ${results.sort((a,b)=>b.percentage-a.percentage).map((r,i)=>`
+            <tr>
+              <td class="td-mono" style="color:var(--muted)">${i+1}</td>
+              <td><div style="font-weight:500">${r.studentName}</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono)">${r.studentId}</div></td>
+              <td class="td-mono">${r.score}/${r.total}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="td-mono">${r.percentage}%</span>
+                  <div class="perf-bar-wrap" style="width:60px;height:4px"><div class="perf-bar ${r.passed?'perf-green':'perf-red'}" style="width:${r.percentage}%"></div></div>
+                </div>
+              </td>
+              <td><span class="${r.passed?'pass-text':'fail-text'}">${r.passed?'Passed':'Failed'}</span></td>
+              <td style="color:var(--muted);font-size:12px">${new Date(r.submittedAt).toLocaleString()}</td>
+              <td><button class="expand-btn" onclick="window.location.href='results.html?resultId=${r.id}&mode=teacher'">View →</button></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`);
+}
+
+// ── Teacher: all exams overview ──
+function renderTeacherAll() {
+  const exams  = JSON.parse(localStorage.getItem('examly_exams')||'[]').filter(e=>e.teacherId===user.id);
+  const allRes = JSON.parse(localStorage.getItem('examly_results')||'[]');
+  const myRes  = allRes.filter(r=>exams.map(e=>e.id).includes(r.examId));
+
+  html('app',`
+    <button class="back-btn" onclick="history.back()">← Back</button>
+    <div style="margin-bottom:24px">
+      <div style="font-size:22px;font-weight:600;letter-spacing:-0.03em">All results</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px">${myRes.length} submissions across ${exams.length} exams</div>
+    </div>
+    ${exams.map(e=>{
+      const ers = myRes.filter(r=>r.examId===e.id);
+      if (!ers.length) return `
+        <div class="section" style="margin-bottom:12px">
+          <div class="section-head">
+            <div><div class="section-title">${e.title}</div><div class="section-sub">${e.subject} · No submissions yet</div></div>
+            <span class="badge badge-neutral">0 students</span>
+          </div>
+        </div>`;
+      const avg = Math.round(ers.reduce((s,r)=>s+r.percentage,0)/ers.length);
+      const passed = ers.filter(r=>r.passed).length;
+      return `
+        <div class="section" style="margin-bottom:12px">
+          <div class="section-head">
+            <div>
+              <div class="section-title">${e.title}</div>
+              <div class="section-sub">${e.subject} · ${ers.length} submissions · avg ${avg}%</div>
+            </div>
+            <button class="btn btn-accent" onclick="window.location.href='results.html?mode=teacher&examId=${e.id}'">Full analysis →</button>
+          </div>
+          <table>
+            <thead><tr><th>Student</th><th>Score</th><th>%</th><th>Status</th><th>Date</th><th></th></tr></thead>
+            <tbody>
+              ${ers.sort((a,b)=>b.percentage-a.percentage).slice(0,5).map(r=>`
+                <tr>
+                  <td style="font-weight:500">${r.studentName}</td>
+                  <td class="td-mono">${r.score}/${r.total}</td>
+                  <td class="td-mono">${r.percentage}%</td>
+                  <td><span class="${r.passed?'pass-text':'fail-text'}">${r.passed?'Passed':'Failed'}</span></td>
+                  <td style="color:var(--muted);font-size:12px">${new Date(r.submittedAt).toLocaleDateString()}</td>
+                  <td><button class="expand-btn" onclick="window.location.href='results.html?resultId=${r.id}&mode=teacher'">View</button></td>
+                </tr>`).join('')}
+              ${ers.length>5?`<tr><td colspan="6" style="text-align:center;padding:12px;color:var(--muted);font-size:12px">+${ers.length-5} more · <a href="results.html?mode=teacher&examId=${e.id}" style="color:var(--accent);text-decoration:none">View all</a></td></tr>`:''}
+            </tbody>
+          </table>
+        </div>`;
+    }).join('')||'<div class="empty"><div class="empty-icon">📊</div>No exams created yet.</div>'}`);
+}
+
+// ── Student: all my results ──
+function renderStudentAll() {
+  const results = JSON.parse(localStorage.getItem('examly_results')||'[]').filter(r=>r.studentId===user.id);
+  html('app',`
+    <button class="back-btn" onclick="history.back()">← Back</button>
+    <div style="margin-bottom:24px">
+      <div style="font-size:22px;font-weight:600;letter-spacing:-0.03em">My results</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px">${results.length} exams taken</div>
+    </div>
+    ${!results.length?'<div class="empty"><div class="empty-icon">📊</div>No exams taken yet.</div>':
+      results.slice().reverse().map(r=>`
+        <div class="section" style="margin-bottom:10px;cursor:pointer" onclick="window.location.href='results.html?resultId=${r.id}'">
+          <div class="section-head" style="padding:18px 20px">
+            <div>
+              <div class="section-title">${r.examTitle}</div>
+              <div class="section-sub">${new Date(r.submittedAt).toLocaleString()}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="text-align:right">
+                <div style="font-size:22px;font-weight:600;letter-spacing:-0.04em;color:${r.passed?'var(--green)':'var(--red)'}">${r.percentage}%</div>
+                <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">${r.score}/${r.total} correct</div>
+              </div>
+              <span class="badge ${r.passed?'badge-pass':'badge-fail'}">${r.passed?'Passed':'Failed'}</span>
+              <span style="color:var(--muted)">→</span>
+            </div>
+          </div>
+          <div style="padding:0 20px 14px;display:flex;gap:8px">
+            <div class="perf-bar-wrap" style="flex:1;height:4px">
+              <div class="perf-bar ${r.passed?'perf-green':'perf-red'}" style="width:${r.percentage}%"></div>
+            </div>
+          </div>
+        </div>`).join('')}`);
+}
+
+init();
+</script>
+</body>
+</html>
