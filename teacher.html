@@ -615,6 +615,26 @@
             </div>
           </div>
           <!-- PDF/Word Upload Section -->
+
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title"
+                >Questions
+                <span id="qCount" style="color: var(--muted); font-weight: 400"
+                  >(0)</span
+                ></span
+              >
+              <button class="btn btn-outline btn-sm" onclick="addQuestion()">
+                + Add question
+              </button>
+            </div>
+            <div class="section-body" id="questionsContainer">
+              <div class="empty" id="noQuestions">
+                <div class="empty-icon">❓</div>
+                Add at least one question to continue.
+              </div>
+            </div>
+          </div>
           <div class="section">
             <div class="section-head">
               <span class="section-title">Import from file</span>
@@ -708,25 +728,6 @@ Virtual Machines
 SQL Database
 Ans: Azure Functions</pre
                 >
-              </div>
-            </div>
-          </div>
-          <div class="section">
-            <div class="section-head">
-              <span class="section-title"
-                >Questions
-                <span id="qCount" style="color: var(--muted); font-weight: 400"
-                  >(0)</span
-                ></span
-              >
-              <button class="btn btn-outline btn-sm" onclick="addQuestion()">
-                + Add question
-              </button>
-            </div>
-            <div class="section-body" id="questionsContainer">
-              <div class="empty" id="noQuestions">
-                <div class="empty-icon">❓</div>
-                Add at least one question to continue.
               </div>
             </div>
           </div>
