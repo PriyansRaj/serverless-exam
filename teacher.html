@@ -1206,7 +1206,7 @@ Ans: Azure Functions</pre
           const formData = new FormData();
           formData.append("file", file);
 
-          const res = await fetch(`${API}/parseDocument`, {
+          const res = await fetch(`${API}/parseDocuments`, {
             method: "POST",
             body: formData,
           });
