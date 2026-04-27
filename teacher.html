@@ -731,6 +731,64 @@ Ans: Azure Functions</pre
               </div>
             </div>
           </div>
+          <!-- AI Question Generation -->
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title">✦ Generate with AI</span>
+              <span style="font-size: 12px; color: var(--muted)"
+                >Powered by Azure OpenAI</span
+              >
+            </div>
+            <div class="section-body">
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 1fr 1fr auto;
+                  gap: 12px;
+                  align-items: flex-end;
+                "
+              >
+                <div class="field" style="margin: 0">
+                  <label>Topic</label>
+                  <input
+                    type="text"
+                    id="aiTopic"
+                    placeholder="e.g. Cloud Computing"
+                  />
+                </div>
+                <div class="field" style="margin: 0">
+                  <label>Number of questions</label>
+                  <input
+                    type="number"
+                    id="aiCount"
+                    value="5"
+                    min="1"
+                    max="20"
+                  />
+                </div>
+                <div class="field" style="margin: 0">
+                  <label>Difficulty</label>
+                  <select id="aiDifficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </div>
+                <button
+                  class="btn btn-accent"
+                  id="aiGenerateBtn"
+                  onclick="generateAIQuestions()"
+                  style="margin-bottom: 1px"
+                >
+                  Generate →
+                </button>
+              </div>
+              <div
+                id="aiStatus"
+                style="margin-top: 12px; font-size: 13px; display: none"
+              ></div>
+            </div>
+          </div>
           <div style="display: flex; gap: 10px; justify-content: flex-end">
             <button class="btn btn-outline" onclick="resetForm()">Clear</button>
             <button
@@ -1243,6 +1301,57 @@ Ans: Azure Functions</pre
         } catch (err) {
           status.innerHTML = `<div style="color:var(--red);font-size:13px">Upload failed: ${err.message}</div>`;
           dropZone.style.borderColor = "rgba(255,68,68,0.3)";
+        }
+      }
+      async function generateAIQuestions() {
+        const topic = document.getElementById("aiTopic").value.trim();
+        const count = parseInt(document.getElementById("aiCount").value) || 5;
+        const difficulty = document.getElementById("aiDifficulty").value;
+        const subject = document.getElementById("examSubject").value.trim();
+
+        if (!topic) {
+          toast("Please enter a topic");
+          return;
+        }
+
+        const btn = document.getElementById("aiGenerateBtn");
+        const status = document.getElementById("aiStatus");
+        btn.disabled = true;
+        btn.textContent = "⏳ Generating...";
+        status.style.display = "block";
+        status.innerHTML = `<div style="color:var(--muted)">✦ Azure OpenAI is generating ${count} questions about "${topic}"...</div>`;
+
+        try {
+          const res = await fetch(`${API}/generateQuestions`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic, subject, count, difficulty }),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            status.innerHTML = `<div style="color:var(--red)">Error: ${data.error}</div>`;
+            return;
+          }
+
+          // Add generated questions to form
+          const startIdx = questions.length;
+          data.questions.forEach((q, idx) => {
+            questions.push(q);
+            renderQuestion(startIdx + idx);
+          });
+
+          document.getElementById("noQuestions").style.display = "none";
+          updateQCount();
+
+          status.innerHTML = `<div style="color:var(--green)">✓ ${data.totalGenerated} questions generated about "${topic}"!</div>`;
+          toast(`✦ ${data.totalGenerated} AI questions added!`, true);
+          document.getElementById("aiTopic").value = "";
+        } catch (err) {
+          status.innerHTML = `<div style="color:var(--red)">Failed: ${err.message}</div>`;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Generate →";
         }
       }
     </script>
